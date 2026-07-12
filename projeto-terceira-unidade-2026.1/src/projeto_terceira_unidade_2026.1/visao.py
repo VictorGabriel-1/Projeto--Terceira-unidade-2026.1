@@ -4,6 +4,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import colorchooser
+from tkinter import filedialog, messagebox
 
 
 class VisaoDesenho:
@@ -49,6 +50,14 @@ class VisaoDesenho:
         self.canvas = Canvas(self.frame, bg='white', width=600, height=600)
         self.canvas.grid(column=0, row=1, columnspan=7, sticky=W, **paddings)
 
+        # Botões de Salvar e Abrir (centralizados embaixo do canvas)
+        self.frame_botoes_arquivo = Frame(self.frame)
+        self.frame_botoes_arquivo.grid(column=0, row=2, columnspan=7, pady=5)
+        self.botao_salvar = ttk.Button(self.frame_botoes_arquivo, text='Salvar...')
+        self.botao_salvar.pack(side=LEFT, padx=5)
+        self.botao_abrir = ttk.Button(self.frame_botoes_arquivo, text='Abrir...')
+        self.botao_abrir.pack(side=LEFT, padx=5)
+
         self.frame.pack()
 
     # REGISTRA OS CLIQUES DO MOUSE 
@@ -58,6 +67,39 @@ class VisaoDesenho:
         self.canvas.bind('<ButtonRelease-1>', ao_soltar)
         self.canvas.bind('<Motion>', ao_mover)
         self.canvas.bind('<Double-Button-1>', ao_duplo_clique)
+
+    # LIGA OS BOTÕES "SALVAR..." E "ABRIR..." (EMBAIXO DO CANVAS) AOS CALLBACKS DO CONTROLADOR
+    def registrar_botoes_arquivo(self, ao_salvar, ao_abrir):
+        self.botao_salvar.config(command=lambda: self._pedir_arquivo_para_salvar(ao_salvar))
+        self.botao_abrir.config(command=lambda: self._pedir_arquivo_para_abrir(ao_abrir))
+
+    # ABRE A CAIXA DE DIÁLOGO "SALVAR COMO" E REPASSA O CAMINHO ESCOLHIDO
+    def _pedir_arquivo_para_salvar(self, ao_salvar):
+        caminho = filedialog.asksaveasfilename(
+            defaultextension='.json',
+            filetypes=[('Arquivo de desenho', '*.json')],
+            title='Salvar desenho',
+        )
+        if not caminho:
+            return
+        try:
+            ao_salvar(caminho)
+        except Exception as erro:
+            messagebox.showerror('Erro ao salvar', str(erro))
+
+    # ABRE A CAIXA DE DIÁLOGO "ABRIR" E REPASSA O CAMINHO ESCOLHIDO
+    def _pedir_arquivo_para_abrir(self, ao_abrir):
+        caminho = filedialog.askopenfilename(
+            defaultextension='.json',
+            filetypes=[('Arquivo de desenho', '*.json')],
+            title='Abrir desenho',
+        )
+        if not caminho:
+            return
+        try:
+            ao_abrir(caminho)
+        except Exception as erro:
+            messagebox.showerror('Erro ao abrir', str(erro))
 
     # LEUITURA DO QUE O USUARIO ESCOLHEU
     def tipo_figura_selecionado(self):

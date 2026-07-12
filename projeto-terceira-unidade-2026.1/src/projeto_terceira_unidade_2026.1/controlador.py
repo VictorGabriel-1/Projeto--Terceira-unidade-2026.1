@@ -16,6 +16,10 @@ class ControladorDesenho:
             ao_mover=self.ao_mover_mouse,
             ao_duplo_clique=self.ao_duplo_clique,
         )
+        self.visao.registrar_botoes_arquivo(
+            ao_salvar=self.ao_salvar_arquivo,
+            ao_abrir=self.ao_abrir_arquivo,
+        )
 
     # Quando o mouse é pressionado
     def ao_pressionar_mouse(self, event):
@@ -58,6 +62,15 @@ class ControladorDesenho:
         if self.modelo.figura_atual_e_poligono():
             self.modelo.concluir_figura_atual()
             self._redesenhar()
+
+    # SALVA O DESENHO ATUAL NO ARQUIVO ESCOLHIDO PELO USUÁRIO
+    def ao_salvar_arquivo(self, caminho):
+        self.modelo.salvar(caminho)
+
+    # ABRE UM ARQUIVO E CARREGA O DESENHO SALVO NELE
+    def ao_abrir_arquivo(self, caminho):
+        self.modelo.abrir(caminho)
+        self._redesenhar()
 
     def _redesenhar(self):
         self.visao.redesenhar(self.modelo.figuras, self.modelo.figura_atual)
